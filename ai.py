@@ -99,7 +99,32 @@ def counts(board, game, color):
         - num_king_hopefuls (int): The total number of moves that lead to king promotions for the specified color.
     """
 
-    pass
+    # coloring matters
+    num_pieces = 0
+    num_kings = 0 
+    num_moves = 0 
+    num_opportunities = 0
+    num_king_hopefuls = 0
+
+    for row in range(8):
+        for col in range(8):
+            piece = board.get_piece(row, col)
+            if(piece == 0):
+                continue
+            else: 
+                if(color == piece.color):
+                    if(piece.king == True):
+                        num_kings += 1
+
+                    i, j, k = game.find_moves(board, piece)
+                    num_moves = num_moves + i
+                    num_opportunities = num_opportunities + j
+                    num_king_hopefuls = num_king_hopefuls + k
+                    num_pieces += 1
+                else:
+                    continue
+    return (num_pieces, num_kings, num_moves, num_opportunities, num_king_hopefuls)
+
 
 def compare_boards(board1, board2):
     """
