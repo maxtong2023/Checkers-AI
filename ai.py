@@ -99,6 +99,11 @@ def counts(board, game, color):
         - num_king_hopefuls (int): The total number of moves that lead to king promotions for the specified color.
     """
 
+    # looks like find_moves does not return a tuple of all the moves that we need, rather a list of tuplse
+    # containing the final destination coordinate, the list of captured pieces along the path, and a boolean saying whether
+    # or not a king can be achieved.  
+    # 
+
     # coloring matters
     num_pieces = 0
     num_kings = 0 
@@ -113,14 +118,29 @@ def counts(board, game, color):
                 continue
             else: 
                 if(color == piece.color):
+                    num_pieces += 1
                     if(piece.king == True):
                         num_kings += 1
+                    # find moves apparently doesn't return a tuple wtf
+                    # My understanding of this may be flawed. Perhaps find_moves does not return what i need for 3
+                    # variables. I might need to utilize another implementation in the game class. 
 
-                    i, j, k = game.find_moves(board, piece)
-                    num_moves = num_moves + i
-                    num_opportunities = num_opportunities + j
-                    num_king_hopefuls = num_king_hopefuls + k
-                    num_pieces += 1
+                    allmoves = game.find_moves(board, piece)
+                    destinations = set() # reset the set on every new piece. 
+                    canCapture = False
+                    
+                    for dest, captured, hopefuls in allmoves: 
+                        destinations.add(dest)
+                        
+                        if len(captured) > 0:
+                            canCapture = True
+                        if hopefuls:
+                            num_king_hopefuls += 1
+                    
+                    num_moves += len(destinations)
+                    
+                    if canCapture:
+                        num_opportunities += 1
                 else:
                     continue
     return (num_pieces, num_kings, num_moves, num_opportunities, num_king_hopefuls)
