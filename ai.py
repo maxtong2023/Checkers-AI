@@ -105,6 +105,8 @@ def counts(board, game, color):
     # 
 
     # coloring matters
+
+    # something is wrong. This lab seems to not be implemented very well.
     num_pieces = 0
     num_kings = 0 
     num_moves = 0 
