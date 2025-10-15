@@ -28,21 +28,32 @@ def minimax_alpha_beta(board, depth, alpha, beta, max_player, game, eval_params=
         """
 
     best_score = float("-inf")
-    worst_score = float("inf")
     if max_player:
         moves = game.generate_all_moves(board, PLAYER2_PIECE_COLOR)
+        best_score = float("-inf")
     else:
         moves = game.generate_all_moves(board, PLAYER1_PIECE_COLOR)
+        best_score = float("inf")
+    
+    if len(moves) == 0:
+        if max_player:
+            return float('-inf'), board
+        else:
+            return float('inf'), board
+    
     best_move = random.choice(moves)
     worst_move = random.choice(moves)
 
 
     if depth == 0:
-        return evaluate(board), best_move
+        if eval_params:
+            return evaluate(board, game, eval_params[0], eval_params[1], eval_params[2], eval_params[3], eval_params[4]), best_move
+        else:
+            return evaluate(board, game), best_move
 
     if max_player: 
         for move in moves: 
-            score = minimax_alpha_beta(move, depth - 1, alpha, beta, False)[0]
+            score = minimax_alpha_beta(move, depth - 1, alpha, beta, False, game, eval_params)[0]
             if score > best_score: 
                 best_score = score
                 best_move = move
@@ -51,12 +62,12 @@ def minimax_alpha_beta(board, depth, alpha, beta, max_player, game, eval_params=
                 break
     else:
         for move in moves: 
-            score = minimax_alpha_beta(move, depth - 1, alpha, beta, False)[0]
+            score = minimax_alpha_beta(move, depth - 1, alpha, beta, True, game, eval_params)[0]
             if score < best_score: 
-                worst_score = score
-                worst_move = move
-            alpha = max(alpha, best_score)
-            if beta <= alpha: 
+                best_score = score
+                best_move = move
+            beta = min(beta, best_score)
+            if alpha >= beta: 
                 break
 
         
