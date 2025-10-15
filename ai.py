@@ -27,11 +27,42 @@ def minimax_alpha_beta(board, depth, alpha, beta, max_player, game, eval_params=
                 - best_move (Board): The board state after the best move
         """
 
-    score = 1
-    moves = game.generate_all_moves(board, PLAYER2_PIECE_COLOR)
+    best_score = float("-inf")
+    worst_score = float("inf")
+    if max_player:
+        moves = game.generate_all_moves(board, PLAYER2_PIECE_COLOR)
+    else:
+        moves = game.generate_all_moves(board, PLAYER1_PIECE_COLOR)
     best_move = random.choice(moves)
+    worst_move = random.choice(moves)
 
-    return score, best_move
+
+    if depth == 0:
+        return evaluate(board), best_move
+
+    if max_player: 
+        for move in moves: 
+            score = minimax_alpha_beta(move, depth - 1, alpha, beta, False)[0]
+            if score > best_score: 
+                best_score = score
+                best_move = move
+            alpha = max(alpha, best_score)
+            if beta <= alpha: 
+                break
+    else:
+        for move in moves: 
+            score = minimax_alpha_beta(move, depth - 1, alpha, beta, False)[0]
+            if score < best_score: 
+                worst_score = score
+                worst_move = move
+            alpha = max(alpha, best_score)
+            if beta <= alpha: 
+                break
+
+        
+
+
+    return best_score, best_move
 
 def evaluate(board, game, pieces_weight=1.0, kings_weight=1.0, moves_weight=0.0, opportunities_weight=0.0, king_hopefuls_weight=0.0):
     """
