@@ -99,75 +99,76 @@ def counts(board, game, color):
         - num_king_hopefuls (int): The total number of moves that lead to king promotions for the specified color.
     """
 
+    # looks like find_moves does not return a tuple of all the moves that we need, rather a list of tuplse
+    # containing the final destination coordinate, the list of captured pieces along the path, and a boolean saying whether
+    # or not a king can be achieved.  
+    # 
+
+    # coloring matters
+
+    # something is wrong. This lab seems to not be implemented very well.
     num_pieces = 0
     num_kings = 0 
     num_moves = 0 
     num_opportunities = 0
     num_king_hopefuls = 0
-
     for row in range(8):
         for col in range(8):
             piece = board.get_piece(row, col)
-            if piece == 0 or piece.color != color:
+            if piece == 0 or piece.color != color: 
                 continue
-            
-            # Count this piece
-            num_pieces += 1
+
+            num_pieces += 1 
             if piece.king:
-                num_kings += 1
-            
-            # Determine which directions this piece can move
-            # Player 1 (OFF_WHITE) moves "down" (increasing row), Player 2 (DARK_GREY) moves "up" (decreasing row)
+                num_kings += 1 
+                # count the single hop moves and only the single hop captures 
+
             directions = []
-            if color == PLAYER1_PIECE_COLOR or piece.king:
-                # Can move forward (toward row 0)
-                directions.extend([(-1, -1), (-1, 1)])  # front-left, front-right
-            if color == PLAYER2_PIECE_COLOR or piece.king:
-                # Can move backward (toward row 7)
-                directions.extend([(1, -1), (1, 1)])  # back-left, back-right
+
+            if color == PLAYER1_PIECE_COLOR or piece.king: 
+                directions.append((-1, -1))  # Player 1 moves toward row 0
+                directions.append((-1, 1))
+            if color == PLAYER2_PIECE_COLOR or piece.king: 
+                directions.append((1, -1))   # Player 2 moves toward row 7
+                directions.append((1, 1))
             
-            # Check each direction for single-hop moves
-            for dr, dc in directions:
-                target_row = row + dr
-                target_col = col + dc
-                
-                # Check if target is on the board
-                if not (0 <= target_row <= 7 and 0 <= target_col <= 7):
+            for d in directions: 
+                newRow = row + d[0]
+                newCol = col + d[1]
+                # Check if the new square is on the board
+                if newRow < 0 or newRow > 7 or newCol < 0 or newCol > 7:
                     continue
-                
-                target_piece = board.get_piece(target_row, target_col)
-                
-                # Case 1: Simple move to empty square
-                if target_piece == 0:
-                    num_moves += 1
                     
-                    # Check if this move leads to king promotion
-                    if not piece.king:
-                        if color == PLAYER1_PIECE_COLOR and target_row == 0:
+                target = board.get_piece(newRow, newCol)
+
+                if target == 0:
+                    num_moves += 1 
+                    if piece.king == False:
+                        if color == PLAYER1_PIECE_COLOR and newRow == 0:
                             num_king_hopefuls += 1
-                        elif color == PLAYER2_PIECE_COLOR and target_row == 7:
+                        elif color == PLAYER2_PIECE_COLOR and newRow == 7:
                             num_king_hopefuls += 1
-                
-                # Case 2: Opponent piece - check for capture (single hop)
-                elif target_piece.color != color:
-                    capture_row = row + 2 * dr
-                    capture_col = col + 2 * dc
+                elif target.color != color:
+                    captureRow = row + 2 * d[0]
+                    captureCol = col + 2 * d[1]
                     
                     # Check if capture landing square is on the board and empty
-                    if 0 <= capture_row <= 7 and 0 <= capture_col <= 7:
-                        landing_piece = board.get_piece(capture_row, capture_col)
-                        if landing_piece == 0:
-                            num_moves += 1
-                            num_opportunities += 1
-                            
-                            # Check if this capture leads to king promotion
-                            if not piece.king:
-                                if color == PLAYER1_PIECE_COLOR and capture_row == 0:
+                    if 0 <= captureRow <= 7 and 0 <= captureCol <= 7:
+                        captureSquare = board.get_piece(captureRow, captureCol)
+                        if captureSquare == 0:
+                            num_opportunities += 1 
+                            num_moves += 1 
+
+                            if piece.king == False:
+                                if color == PLAYER1_PIECE_COLOR and captureRow == 0:
                                     num_king_hopefuls += 1
-                                elif color == PLAYER2_PIECE_COLOR and capture_row == 7:
+                                elif color == PLAYER2_PIECE_COLOR and captureRow == 7:
                                     num_king_hopefuls += 1
-    
-    return (num_pieces, num_kings, num_moves, num_opportunities, num_king_hopefuls)
+    return(num_pieces, num_kings, num_moves, num_opportunities, num_king_hopefuls)
+                    
+                
+
+
 
 
 def compare_boards(board1, board2):
